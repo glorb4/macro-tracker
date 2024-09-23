@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker with Visible History</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="p-4 bg-blue-500 text-white">
+                <h1 class="text-xl font-bold">Workout Tracker</h1>
+            </div>
+            
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-4">Current Exercise</h2>
+                <select id="exercise-select" class="w-full p-2 mb-4 border rounded">
+                    <option value="">Select Exercise</option>
+                    <option value="Bicep Curl">Bicep Curl</option>
+                    <option value="Bench Press">Bench Press</option>
+                    <option value="Squats">Squats</option>
+                </select>
+                
+                <div class="mb-4">
+                    <h3 class="font-semibold mb-2">Sets</h3>
+                    <table id="sets-table" class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-500">
+                                <th>Set</th>
+                                <th>Weight (lbs)</th>
+                                <th>Reps</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sets-body">
+                            <!-- Sets will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button id="add-set-btn" class="w-full p-2 bg-blue-500 text-white rounded mb-4">Add Set</button>
+                <button id="finish-exercise-btn" class="w-full p-2 bg-green-500 text-white rounded">Finish Exercise</button>
+            </div>
+        </div>
+
+        <div id="previous-workouts" class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-4 bg-green-500 text-white">
+                <h2 class="text-xl font-bold">Previous Workouts</h2>
+            </div>
+            <div id="workouts-list" class="p-4">
+                <!-- Previous workouts will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let setCount = 0;
+        const exerciseSelect = document.getElementById('exercise-select');
+        const setsBody = document.getElementById('sets-body');
+        const addSetBtn = document.getElementById('add-set-btn');
+        const finishExerciseBtn = document.getElementById('finish-exercise-btn');
+        const workoutsList = document.getElementById('workouts-list');
+
+        function addSet() {
+            setCount++;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${setCount}</td>
+                <td><input type="number" class="w-full p-1 border rounded" placeholder="Weight"></td>
+                <td><input type="number" class="w-full p-1 border rounded" placeholder="Reps"></td>
+            `;
+            setsBody.appendChild(newRow);
+        }
+
+        function finishExercise() {
+            const exercise = exerciseSelect.value;
+            if (!exercise) {
+                alert('Please select an exercise');
+                return;
+            }
+
+            const sets = [];
+            const rows = setsBody.getElementsByTagName('tr');
+            for (let row of rows) {
+                const inputs = row.getElementsByTagName('input');
+                const weight = inputs[0].value;
+                const reps = inputs[1].value;
+                if (weight && reps) {
+                    sets.push({ weight, reps });
+                }
+            }
+
+            if (sets.length === 0) {
+                alert('Please add at least one set');
+                return;
+            }
+
+            // Create workout summary
+            const workoutSummary = document.createElement('div');
+            workoutSummary.className = 'mb-4 p-4 border rounded';
+            workoutSummary.innerHTML = `
+                <h3 class="font-bold">${exercise} - ${new Date().toLocaleString()}</h3>
+                <ul>
+                    ${sets.map((set, index) => `
+                        <li>Set ${index + 1}: ${set.weight} lbs x ${set.reps} reps</li>
+                    `).join('')}
+                </ul>
+            `;
+
+            // Add to previous workouts
+            workoutsList.insertBefore(workoutSummary, workoutsList.firstChild);
+
+            // Reset the form
+            exerciseSelect.value = '';
+            setsBody.innerHTML = '';
+            setCount = 0;
+            addSet(); // Add initial set
+        }
+
+        addSetBtn.addEventListener('click', addSet);
+        finishExerciseBtn.addEventListener('click', finishExercise);
+
+        // Add initial set
+        addSet();
+    </script>
+</body>
+</html>
