@@ -19,6 +19,9 @@
         .macro-item {
             margin-bottom: 10px;
         }
+        button {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -31,6 +34,7 @@
             <input type="number" id="fats" placeholder="Fats (g)" required>
             <button onclick="addMacro()">Add</button>
         </div>
+        <button onclick="resetTracker()">Reset</button>
     </div>
     <h3>Total Macros:</h3>
     <div id="totalMacros">
@@ -62,10 +66,27 @@
             document.getElementById('totalCalories').innerText = calories;
 
             // Clear input fields
+            clearInputFields();
+        }
+
+        function clearInputFields() {
             document.getElementById('foodItem').value = '';
             document.getElementById('protein').value = '';
             document.getElementById('carbs').value = '';
             document.getElementById('fats').value = '';
+        }
+
+        function resetTracker() {
+            totalProtein = 0;
+            totalCarbs = 0;
+            totalFats = 0;
+            document.getElementById('totalProtein').innerText = totalProtein;
+            document.getElementById('totalCarbs').innerText = totalCarbs;
+            document.getElementById('totalFats').innerText = totalFats;
+            document.getElementById('totalCalories').innerText = 0;
+
+            // Clear input fields
+            clearInputFields();
         }
     </script>
 </body>
