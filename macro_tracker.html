@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .macro-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Macro Tracker</h1>
+    <div id="macroForm">
+        <div class="macro-item">
+            <input type="text" id="foodItem" placeholder="Food Item" required>
+            <input type="number" id="protein" placeholder="Protein (g)" required>
+            <input type="number" id="carbs" placeholder="Carbs (g)" required>
+            <input type="number" id="fats" placeholder="Fats (g)" required>
+            <button onclick="addMacro()">Add</button>
+        </div>
+    </div>
+    <h3>Total Macros:</h3>
+    <div id="totalMacros">
+        <p>Protein: <span id="totalProtein">0</span> g</p>
+        <p>Carbs: <span id="totalCarbs">0</span> g</p>
+        <p>Fats: <span id="totalFats">0</span> g</p>
+        <p>Total Calories: <span id="totalCalories">0</span> kcal</p>
+    </div>
+
+    <script>
+        let totalProtein = 0;
+        let totalCarbs = 0;
+        let totalFats = 0;
+
+        function addMacro() {
+            const protein = parseInt(document.getElementById('protein').value) || 0;
+            const carbs = parseInt(document.getElementById('carbs').value) || 0;
+            const fats = parseInt(document.getElementById('fats').value) || 0;
+
+            totalProtein += protein;
+            totalCarbs += carbs;
+            totalFats += fats;
+
+            const calories = (totalProtein * 4) + (totalCarbs * 4) + (totalFats * 9);
+
+            document.getElementById('totalProtein').innerText = totalProtein;
+            document.getElementById('totalCarbs').innerText = totalCarbs;
+            document.getElementById('totalFats').innerText = totalFats;
+            document.getElementById('totalCalories').innerText = calories;
+
+            // Clear input fields
+            document.getElementById('foodItem').value = '';
+            document.getElementById('protein').value = '';
+            document.getElementById('carbs').value = '';
+            document.getElementById('fats').value = '';
+        }
+    </script>
+</body>
+</html>
