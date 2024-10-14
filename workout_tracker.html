@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout Tracker with Visible History</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 p-4">
     <div class="max-w-3xl mx-auto">
+        <!-- Workout Tracker Section -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
             <div class="p-4 bg-blue-500 text-white">
                 <h1 class="text-xl font-bold">Workout Tracker</h1>
@@ -15,11 +17,22 @@
             
             <div class="p-4">
                 <h2 class="text-lg font-semibold mb-4">Current Exercise</h2>
+                <!-- Muscle Group Selection -->
+                <select id="muscle-group-select" class="w-full p-2 mb-4 border rounded">
+                    <option value="">Select Muscle Group</option>
+                    <option value="Chest">Chest</option>
+                    <option value="Back">Back</option>
+                    <option value="Legs">Legs</option>
+                    <option value="Biceps">Biceps</option>
+                    <option value="Triceps">Triceps</option>
+                    <option value="Shoulders">Shoulders</option>
+                    <option value="Abs">Abs</option>
+                </select>
+
+                <!-- Exercise Selection Based on Muscle Group -->
                 <select id="exercise-select" class="w-full p-2 mb-4 border rounded">
                     <option value="">Select Exercise</option>
-                    <option value="Bicep Curl">Bicep Curl</option>
-                    <option value="Bench Press">Bench Press</option>
-                    <option value="Squats">Squats</option>
+                    <!-- Exercises will be populated based on the muscle group selection -->
                 </select>
                 
                 <div class="mb-4">
@@ -39,27 +52,109 @@
                 </div>
                 
                 <button id="add-set-btn" class="w-full p-2 bg-blue-500 text-white rounded mb-4">Add Set</button>
-                <button id="finish-exercise-btn" class="w-full p-2 bg-green-500 text-white rounded">Finish Exercise</button>
+                <button id="finish-exercise-btn" class="w-full p-2 bg-green-500 text-white rounded mb-4">Finish Exercise</button>
             </div>
         </div>
 
-        <div id="previous-workouts" class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="p-4 bg-green-500 text-white">
+        <!-- Add Custom Exercise Section -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="p-4 bg-yellow-500 text-white">
+                <h2 class="text-xl font-bold">Add Custom Exercise</h2>
+            </div>
+            <div class="p-4">
+                <input id="new-exercise" class="w-full p-2 mb-4 border rounded" placeholder="Exercise Name">
+                <select id="custom-muscle-group-select" class="w-full p-2 mb-4 border rounded">
+                    <option value="">Select Muscle Group</option>
+                    <option value="Chest">Chest</option>
+                    <option value="Back">Back</option>
+                    <option value="Legs">Legs</option>
+                    <option value="Biceps">Biceps</option>
+                    <option value="Triceps">Triceps</option>
+                    <option value="Shoulders">Shoulders</option>
+                    <option value="Abs">Abs</option>
+                </select>
+                <button id="add-exercise-btn" class="w-full p-2 bg-green-500 text-white rounded">Add Custom Exercise</button>
+            </div>
+        </div>
+
+        <!-- Previous Workouts Section -->
+        <div id="previous-workouts" class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="p-4 bg-green-500 text-white flex justify-between items-center">
                 <h2 class="text-xl font-bold">Previous Workouts</h2>
+                <button id="clear-workouts-btn" class="p-2 bg-red-500 text-white rounded">Clear Workouts</button>
             </div>
             <div id="workouts-list" class="p-4">
                 <!-- Previous workouts will be added here -->
+            </div>
+        </div>
+
+        <!-- Workout Analytics Section -->
+        <div id="workout-analytics" class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="p-4 bg-purple-500 text-white">
+                <h2 class="text-xl font-bold">Workout Progress and Analytics</h2>
+            </div>
+            <div class="p-4">
+                <canvas id="progressChart" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
 
     <script>
         let setCount = 0;
+        let workouts = [];
+        let exercises = {
+            "Chest": ["Bench Press", "Incline Bench Press", "Machine Flies", "Flat Bench Dumbbell Press", "Incline Dumbbell Press", "Dumbbell Flies", "Chest Dip"],
+            "Back": ["Barbell Rows", "Chest Supported Dumbbell Row", "Landmine Row", "Machine Iso-lateral Row", "Lat Pulldown", "Pull-up", "Chin-up", "Seated Row", "Back Extensions"],
+            "Legs": ["Barbell Squat", "Deadlift", "Hamstring Curl", "Romanian Deadlift", "Seated Leg Press", "Front Squat", "Leg Extensions"],
+            "Biceps": ["Preacher Curl", "Machine Curl", "Hammer Curl", "Barbell Curl", "Seated Concentration Curl"],
+            "Triceps": ["Tricep Dip", "Skullcrushers", "Rope Pulldown", "Tricep Extension (Machine)"],
+            "Shoulders": ["Military Press", "Push Press", "Dumbbell Press", "Front Raises", "Machine Raise", "Shoulder Press (Machine)"],
+            "Abs": ["Bird-dog", "Crunch", "Deadbug"]
+        };
+
         const exerciseSelect = document.getElementById('exercise-select');
+        const muscleGroupSelect = document.getElementById('muscle-group-select');
         const setsBody = document.getElementById('sets-body');
         const addSetBtn = document.getElementById('add-set-btn');
         const finishExerciseBtn = document.getElementById('finish-exercise-btn');
         const workoutsList = document.getElementById('workouts-list');
+        const addExerciseBtn = document.getElementById('add-exercise-btn');
+        const newExerciseInput = document.getElementById('new-exercise');
+        const customMuscleGroupSelect = document.getElementById('custom-muscle-group-select');
+        const clearWorkoutsBtn = document.getElementById('clear-workouts-btn');
+        let progressChart;
+
+        // Populate exercise dropdown based on selected muscle group
+        muscleGroupSelect.addEventListener('change', function() {
+            const selectedMuscleGroup = this.value;
+            exerciseSelect.innerHTML = '<option value="">Select Exercise</option>';
+            
+            if (exercises[selectedMuscleGroup]) {
+                exercises[selectedMuscleGroup].forEach(exercise => {
+                    const option = document.createElement('option');
+                    option.value = exercise;
+                    option.text = exercise;
+                    exerciseSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Add custom exercise with muscle group
+        addExerciseBtn.addEventListener('click', function() {
+            const newExercise = newExerciseInput.value.trim();
+            const muscleGroup = customMuscleGroupSelect.value;
+
+            if (newExercise && muscleGroup) {
+                if (!exercises[muscleGroup]) {
+                    exercises[muscleGroup] = [];
+                }
+                exercises[muscleGroup].push(newExercise);
+                newExerciseInput.value = '';
+                customMuscleGroupSelect.value = '';
+            } else {
+                alert('Please enter an exercise and select a muscle group');
+            }
+        });
 
         function addSet() {
             setCount++;
@@ -74,19 +169,24 @@
 
         function finishExercise() {
             const exercise = exerciseSelect.value;
-            if (!exercise) {
-                alert('Please select an exercise');
+            const muscleGroup = muscleGroupSelect.value;
+            if (!exercise || !muscleGroup) {
+                alert('Please select a muscle group and exercise');
                 return;
             }
 
             const sets = [];
             const rows = setsBody.getElementsByTagName('tr');
+            let totalVolume = 0;
+
             for (let row of rows) {
                 const inputs = row.getElementsByTagName('input');
-                const weight = inputs[0].value;
-                const reps = inputs[1].value;
+                const weight = parseInt(inputs[0].value);
+                const reps = parseInt(inputs[1].value);
                 if (weight && reps) {
-                    sets.push({ weight, reps });
+                    const volume = weight * reps;
+                    sets.push({ weight, reps, volume });
+                    totalVolume += volume;
                 }
             }
 
@@ -95,26 +195,115 @@
                 return;
             }
 
+            // Store workout details
+            const workout = {
+                exercise,
+                muscleGroup,
+                date: new Date().toLocaleString(),
+                sets,
+                totalVolume
+            };
+            workouts.push(workout);
+            saveWorkouts();
+
             // Create workout summary
             const workoutSummary = document.createElement('div');
             workoutSummary.className = 'mb-4 p-4 border rounded';
             workoutSummary.innerHTML = `
-                <h3 class="font-bold">${exercise} - ${new Date().toLocaleString()}</h3>
+                <h3 class="font-bold">${exercise} - ${workout.date}</h3>
+                <p><strong>Muscle Group:</strong> ${muscleGroup}</p>
                 <ul>
                     ${sets.map((set, index) => `
-                        <li>Set ${index + 1}: ${set.weight} lbs x ${set.reps} reps</li>
+                        <li>Set ${index + 1}: ${set.weight} lbs x ${set.reps} reps (Volume: ${set.volume})</li>
                     `).join('')}
                 </ul>
+                <p><strong>Total Volume:</strong> ${totalVolume} lbs</p>
             `;
 
             // Add to previous workouts
             workoutsList.insertBefore(workoutSummary, workoutsList.firstChild);
 
+            // Update analytics
+            updateProgressChart();
+
             // Reset the form
-            exerciseSelect.value = '';
+            muscleGroupSelect.value = '';
+            exerciseSelect.innerHTML = '<option value="">Select Exercise</option>';
             setsBody.innerHTML = '';
             setCount = 0;
             addSet(); // Add initial set
+        }
+
+        // Save workouts to local storage
+        function saveWorkouts() {
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+        }
+
+        // Load workouts from local storage
+        function loadWorkouts() {
+            const savedWorkouts = JSON.parse(localStorage.getItem('workouts'));
+            if (savedWorkouts) workouts = savedWorkouts;
+
+            // Display saved workouts
+            workouts.forEach(workout => {
+                const workoutSummary = document.createElement('div');
+                workoutSummary.className = 'mb-4 p-4 border rounded';
+                workoutSummary.innerHTML = `
+                    <h3 class="font-bold">${workout.exercise} - ${workout.date}</h3>
+                    <p><strong>Muscle Group:</strong> ${workout.muscleGroup}</p>
+                    <ul>
+                        ${workout.sets.map((set, index) => `
+                            <li>Set ${index + 1}: ${set.weight} lbs x ${set.reps} reps (Volume: ${set.volume})</li>
+                        `).join('')}
+                    </ul>
+                    <p><strong>Total Volume:</strong> ${workout.totalVolume} lbs</p>
+                `;
+                workoutsList.appendChild(workoutSummary);
+            });
+        }
+
+        // Clear all workouts from local storage and the display
+        clearWorkoutsBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all past workouts?')) {
+                workouts = [];
+                saveWorkouts();
+                workoutsList.innerHTML = '';
+                alert('All past workouts have been cleared.');
+            }
+        });
+
+        // Update progress chart
+        function updateProgressChart() {
+            const labels = workouts.map(w => w.date);
+            const volumes = workouts.map(w => w.totalVolume);
+
+            if (progressChart) {
+                progressChart.data.labels = labels;
+                progressChart.data.datasets[0].data = volumes;
+                progressChart.update();
+            } else {
+                const ctx = document.getElementById('progressChart').getContext('2d');
+                progressChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Volume Over Time',
+                            data: volumes,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         addSetBtn.addEventListener('click', addSet);
@@ -122,6 +311,9 @@
 
         // Add initial set
         addSet();
+
+        // Load workouts on page load
+        window.onload = loadWorkouts;
     </script>
 </body>
 </html>
