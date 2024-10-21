@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Challenges & Expert Guidance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f7f1; /* Light beige background */
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #faf3dd; /* Light cream background */
+            color: #585446; /* Soft dark green for text */
+            text-align: center;
+            padding: 1.5em 0;
+        }
+        nav {
+            background-color: #dad3b8; /* Beige navigation bar */
+            overflow: hidden;
+        }
+        nav a {
+            float: left;
+            display: block;
+            color: #333;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #ccc; /* Hover effect with soft grey */
+            color: black;
+        }
+        section {
+            padding: 20px;
+            margin: 10px;
+        }
+        .challenge, .expert-guidance {
+            background-color: #faf3dd; /* Light cream for content boxes */
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .challenge h3, .expert-guidance h3 {
+            color: #7f7e52; /* Soft dark olive */
+        }
+        footer {
+            background-color: #dad3b8; /* Match nav background */
+            padding: 10px;
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Fitness Challenges & Expert Guidance</h1>
+        <p>Get ready to meet all your fitness needs with dynamic macro trackers and exercise libraries tailored for you!</p>
+    </header>
+
+    <nav>
+        <a href="#challenges">Challenges</a>
+        <a href="#guidance">Expert Guidance</a>
+    </nav>
+
+    <section id="challenges">
+        <h2>Fitness Challenges</h2>
+
+        <div class="challenge">
+            <h3>30-Day Squat Challenge</h3>
+            <p>Get stronger legs and glutes with this 30-day squat challenge. Start with 20 squats on Day 1 and increase gradually!</p>
+        </div>
+
+        <div class="challenge">
+            <h3>Plank Challenge</h3>
+            <p>Strengthen your core with this plank challenge. Start with 30 seconds and work up to 5 minutes by the end of the month!</p>
+        </div>
+
+        <div class="challenge">
+            <h3>5k Run Challenge</h3>
+            <p>Perfect for beginners! Start with a 1k walk and build up your endurance until you can run a full 5k without stopping.</p>
+        </div>
+    </section>
+
+    <section id="guidance">
+        <h2>Expert Guidance</h2>
+
+        <div class="expert-guidance">
+            <h3>Nutrition for Fitness Success</h3>
+            <p>Eating the right foods can boost your workout performance and recovery. Make sure to include a balanced diet rich in proteins, carbs, and healthy fats.</p>
+        </div>
+
+        <div class="expert-guidance">
+            <h3>Importance of Rest Days</h3>
+            <p>Rest days are crucial for muscle recovery and preventing burnout. Listen to your body and take breaks when needed.</p>
+        </div>
+
+        <div class="expert-guidance">
+            <h3>Tips for Staying Consistent</h3>
+            <p>Consistency is key! Set small goals, track your progress, and stay motivated by mixing up your workout routine to keep things interesting.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p> MuscleMap</p>
+    </footer>
+
+</body>
+</html>
